@@ -1,0 +1,75 @@
+// Bun Snapshot v1, https://bun.sh/docs/test/snapshots
+
+exports[`emits all declarations 1`] = `
+"import { z } from "zod";
+
+export const myModel = z.object({
+  id: z.string(),
+});
+
+export const myModelArray = z.array(myModel);
+
+export const myScalar = z.string();
+
+export const myFoo = z.union([z.literal(1), z.literal(2)]);
+
+export const myEnum = z.enum([1]);"
+`;
+
+exports[`handles references by doing a topological sort 1`] = `
+"import { z } from "zod";
+
+export const myModel = z.object({
+  id: z.string(),
+});
+
+export const myModelArray = z.array(myModel);
+
+export const myUnion = z.union([myModelArray, myModel]);"
+`;
+
+exports[`handles the readme sample 1`] = `
+"import { z } from "zod";
+
+export const petBase = z.object({
+  age: z.number().int().nonnegative().lte(255),
+  name: z.string().max(20),
+});
+
+export const cat = petBase.merge(z.object({
+  belongingsShredded: z.bigint().nonnegative().lte(18446744073709551615n),
+}));
+
+export const dog = petBase.merge(z.object({
+  walksPerDay: z.number().int().safe(),
+}));
+
+export const pet = z.discriminatedUnion(
+  "kind",
+  [
+    z.object({
+      kind: z.literal("dog"),
+      value: dog,
+    }),
+    z.object({
+      kind: z.literal("cat"),
+      value: cat,
+    })
+  ]
+);"
+`;
+
+exports[`doesn't emit things from built-in libraries 1`] = `
+"import { z } from "zod";
+
+export const petBase = z.object({
+  age: z.number().int().nonnegative().lte(255),
+  name: z.string().max(20),
+});
+
+export const refHttp = z.object({
+  foo: z.object({
+    statusCode: z.literal(200),
+  }),
+});"
+`;

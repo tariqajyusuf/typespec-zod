@@ -1,0 +1,68 @@
+import { createComponent as _$createComponent } from "@alloy-js/core/jsx-runtime";
+import { Output as AlloyOutput, render } from "@alloy-js/core";
+import { SourceFile } from "@alloy-js/typescript";
+import { createTestHost as coreCreateTestHost, createTestWrapper } from "@typespec/compiler/testing";
+import { Output } from "@typespec/emitter-framework";
+import { HttpTestLibrary } from "@typespec/http/testing";
+import { expect } from "vitest";
+import { zod } from "../src/index.js";
+import { TypeSpecZodTestLibrary } from "../src/testing/index.js";
+export function expectRender(program, children, expected) {
+  const template = _$createComponent(Output, {
+    program: program,
+    externals: [zod],
+    get children() {
+      return _$createComponent(SourceFile, {
+        path: "test.ts",
+        children: children
+      });
+    }
+  });
+  const output = render(template, {
+    insertFinalNewLine: false
+  });
+  expect(output.contents[0].contents.split(/\n/).slice(2).join("\n")).toBe(expected);
+}
+export function expectRenderPure(children, expected) {
+  const template = _$createComponent(AlloyOutput, {
+    externals: [zod],
+    get children() {
+      return _$createComponent(SourceFile, {
+        path: "test.ts",
+        children: children
+      });
+    }
+  });
+  const output = render(template, {
+    insertFinalNewLine: false
+  });
+  expect(output.contents[0].contents.split(/\n/).slice(2).join("\n")).toBe(expected);
+}
+export async function createTestHost(includeHttp = false) {
+  return coreCreateTestHost({
+    libraries: [TypeSpecZodTestLibrary, ...(includeHttp ? [HttpTestLibrary] : [])]
+  });
+}
+export async function createTestRunner() {
+  const host = await createTestHost();
+  const importAndUsings = "";
+  return createTestWrapper(host, {
+    wrapper: code => `${importAndUsings} ${code}`
+  });
+}
+export async function createEmitterTestRunner(emitterOptions, includeHttp = false) {
+  const host = await createTestHost(includeHttp);
+  const importAndUsings = includeHttp ? `import "@typespec/http"; using Http;\n` : ``;
+  return createTestWrapper(host, {
+    wrapper: code => `${importAndUsings} ${code}`,
+    compilerOptions: {
+      emit: ["typespec-zod"],
+      options: {
+        "typespec-zod": {
+          ...emitterOptions
+        }
+      }
+    }
+  });
+}
+//# sourceMappingURL=utils.js.map
