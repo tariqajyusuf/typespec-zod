@@ -2,11 +2,10 @@ import { createComponent as _$createComponent, createIntrinsic as _$createIntrin
 import * as ay from "@alloy-js/core";
 import * as ts from "@alloy-js/typescript";
 import { ListenerFlow, navigateProgram } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
 import { Output, writeOutput } from "@typespec/emitter-framework";
 import { ZodSchemaDeclaration } from "./components/ZodSchemaDeclaration.js";
 import { zod } from "./external-packages/zod.js";
-import { newTopologicalTypeCollector } from "./utils.js";
+import { isBuiltIn, newTopologicalTypeCollector } from "./utils.js";
 export async function $onEmit(context) {
   const types = getAllDataTypes(context.program);
   const tsNamePolicy = ts.createTSNamePolicy();
@@ -44,10 +43,9 @@ export async function $onEmit(context) {
  */
 function getAllDataTypes(program) {
   const collector = newTopologicalTypeCollector(program);
-  const globalNs = program.getGlobalNamespaceType();
   navigateProgram(program, {
     namespace(n) {
-      if (n !== globalNs && !$(program).type.isUserDefined(n)) {
+      if (isBuiltIn(program, n)) {
         return ListenerFlow.NoRecursion;
       }
     },
