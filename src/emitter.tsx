@@ -6,11 +6,10 @@ import {
   navigateProgram,
   Program,
 } from "@typespec/compiler";
-import { $ } from "@typespec/compiler/typekit";
 import { Output, writeOutput } from "@typespec/emitter-framework";
 import { ZodSchemaDeclaration } from "./components/ZodSchemaDeclaration.jsx";
 import { zod } from "./external-packages/zod.js";
-import { newTopologicalTypeCollector } from "./utils.jsx";
+import { isBuiltIn, newTopologicalTypeCollector } from "./utils.jsx";
 
 export async function $onEmit(context: EmitContext) {
   const types = getAllDataTypes(context.program);
@@ -50,13 +49,12 @@ export async function $onEmit(context: EmitContext) {
  */
 function getAllDataTypes(program: Program) {
   const collector = newTopologicalTypeCollector(program);
-  const globalNs = program.getGlobalNamespaceType();
 
   navigateProgram(
     program,
     {
       namespace(n) {
-        if (n !== globalNs && !$(program).type.isUserDefined(n)) {
+        if (isBuiltIn(program, n)) {
           return ListenerFlow.NoRecursion;
         }
       },
