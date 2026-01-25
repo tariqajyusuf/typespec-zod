@@ -20,7 +20,7 @@ export function zodDescriptionParts(type, member) {
     }
   }
   if (doc) {
-    return [callPart("describe", `"${doc.replace(/\n+/g, " ").replace(/"/g, "\"")}"`)];
+    return [callPart("describe", `"${doc.replace(/\n+/g, " ").replace(/"/g, "\\\"")}"`)];
   }
   return [];
 }

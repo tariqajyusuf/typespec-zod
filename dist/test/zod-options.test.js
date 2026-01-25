@@ -535,7 +535,7 @@ describe("type customization signatures", () => {
               .string()
               .max(10)
               .optional()
-              .describe("description of a \"model\" property"),
+              .describe("description of a \\\"model\\\" property"),
           });
         `);
     });
