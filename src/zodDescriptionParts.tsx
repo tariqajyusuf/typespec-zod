@@ -27,7 +27,7 @@ export function zodDescriptionParts(type: Type, member?: ModelProperty) {
   if (doc) {
     return [callPart("describe", `"${doc
       .replace(/\n+/g, " ")
-      .replace(/"/g, "\"")}"`)];
+      .replace(/"/g, "\\\"")}"`)];
   }
 
   return [];
