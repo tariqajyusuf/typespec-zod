@@ -741,7 +741,6 @@ describe("type customization signatures", () => {
       );
     });
   });
-
 });
 
 describe("end-to-end scenarios", () => {
